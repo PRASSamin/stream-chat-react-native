@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View, Platform } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { Attachment } from 'stream-chat';
 
@@ -137,6 +137,9 @@ const GalleryWithContext = <
     ?.map((i) => `${i.image_url}${i.thumb_url}`)
     .join('')}${videos?.map((i) => `${i.image_url}${i.thumb_url}`).join('')}`;
 
+  const isLastMessage = groupStyles?.[0] === 'bottom' || groupStyles?.[0] === 'single';
+  const isMyMessage = alignment === 'right';
+
   const { height, invertedDirections, thumbnailGrid, width } = useMemo(
     () =>
       buildGallery({
@@ -160,6 +163,20 @@ const GalleryWithContext = <
           height,
           width,
         },
+        {
+          borderTopLeftRadius: 14,
+          borderTopRightRadius: 14,
+          borderBottomLeftRadius: 14,
+          borderBottomRightRadius: 14,
+        },
+        isLastMessage &&
+          (isMyMessage
+            ? {
+                borderBottomRightRadius: 0,
+              }
+            : {
+                borderBottomLeftRadius: 0,
+              }),
         galleryContainer,
       ]}
       testID='gallery-container'
@@ -222,6 +239,8 @@ const GalleryWithContext = <
                   setSelectedMessage={setSelectedMessage}
                   thumbnail={thumbnail}
                   VideoThumbnail={VideoThumbnail}
+                  isMyMessage={isMyMessage}
+                  isLastMessage={isLastMessage}
                 />
               );
             })}
@@ -249,6 +268,8 @@ type GalleryThumbnailProps<
   numOfRows: number;
   rowIndex: number;
   thumbnail: Thumbnail;
+  isMyMessage: boolean;
+  isLastMessage: boolean;
 } & Pick<
   MessagesContextValue<StreamChatGenerics>,
   | 'additionalPressableProps'
@@ -288,6 +309,8 @@ const GalleryThumbnail = <
   setSelectedMessage,
   thumbnail,
   VideoThumbnail,
+  isMyMessage,
+  isLastMessage,
 }: GalleryThumbnailProps<StreamChatGenerics>) => {
   const {
     theme: {
@@ -390,9 +413,7 @@ const GalleryThumbnail = <
           thumb_url={thumbnail.thumb_url}
         />
       ) : (
-        <View
-          style={[Platform.OS !== 'android' && styles.imageContainerStyle, imageContainerStyle]}
-        >
+        <View style={[styles.imageContainerStyle, imageContainerStyle]}>
           <GalleryImageThumbnail
             borderRadius={imageBorderRadius ?? borderRadius}
             ImageLoadingFailedIndicator={ImageLoadingFailedIndicator}
@@ -406,6 +427,8 @@ const GalleryThumbnail = <
           style={[
             StyleSheet.absoluteFillObject,
             styles.moreImagesContainer,
+            !isLastMessage &&
+              (isMyMessage ? { borderBottomRightRadius: 14 } : { borderBottomLeftRadius: 14 }),
             { backgroundColor: overlay },
             moreImagesContainer,
           ]}

@@ -31,7 +31,6 @@ export function getGalleryImageBorderRadius({
   threadList,
   width,
 }: Params) {
-  const groupStyle = `${alignment}_${groupStyles?.[0]?.toLowerCase?.()}`;
   const isSingleImage = numOfColumns === 1 && numOfRows === 1;
   const isImageSmallerThanMinContainerSize =
     isSingleImage &&
@@ -39,6 +38,7 @@ export function getGalleryImageBorderRadius({
     width &&
     ((height > width && width === sizeConfig.minWidth) ||
       (height < width && height === sizeConfig.minHeight));
+
   const topLeftEdgeExposed = colIndex === 0 && rowIndex === 0;
   const bottomLeftEdgeExposed =
     (!invertedDirections && colIndex === 0 && rowIndex === numOfRows - 1) ||
@@ -46,25 +46,26 @@ export function getGalleryImageBorderRadius({
   const topRightEdgeExposed =
     (!invertedDirections && colIndex === numOfColumns - 1 && rowIndex === 0) ||
     (invertedDirections && colIndex === 0 && rowIndex === numOfRows - 1);
-  const bottomRightEdgeExposed = colIndex === numOfColumns && rowIndex === numOfRows - 1;
+  const bottomRightEdgeExposed = colIndex === numOfColumns - 1 && rowIndex === numOfRows - 1;
+
+  const isLastMessage = groupStyles?.[0] === 'bottom' || groupStyles?.[0] === 'single';
+  const isMyMessage = alignment === 'right';
 
   return {
     borderBottomLeftRadius:
       !isImageSmallerThanMinContainerSize &&
       bottomLeftEdgeExposed &&
-      !messageText &&
-      ((groupStyle !== 'left_bottom' && groupStyle !== 'left_single') ||
-        (hasThreadReplies && !threadList))
+      (!isLastMessage || hasThreadReplies || isMyMessage)
         ? 14
         : 0,
+
     borderBottomRightRadius:
       !isImageSmallerThanMinContainerSize &&
       bottomRightEdgeExposed &&
-      !messageText &&
-      ((groupStyle !== 'right_bottom' && groupStyle !== 'right_single') ||
-        (hasThreadReplies && !threadList))
+      (!isLastMessage || hasThreadReplies || !isMyMessage)
         ? 14
         : 0,
+
     borderTopLeftRadius: !isImageSmallerThanMinContainerSize && topLeftEdgeExposed ? 14 : 0,
     borderTopRightRadius: !isImageSmallerThanMinContainerSize && topRightEdgeExposed ? 14 : 0,
   };

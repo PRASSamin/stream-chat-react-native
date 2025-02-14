@@ -290,7 +290,10 @@ export const ImageGallery = <
    * The URL for the images may differ because of dimensions passed as
    * part of the query.
    */
-  const stripQueryFromUrl = (url: string) => url.split('?')[0];
+  const stripQueryFromUrl = (url: string) => {
+    console.log(photos);
+    return url?.split('?')[0];
+  };
 
   /**
    * Set selected photo when changed via pressing in the message list
